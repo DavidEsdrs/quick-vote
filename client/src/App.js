@@ -25,6 +25,7 @@ function App() {
                     <Route element={<Layout />}>
                         <Route path={"/"} element={<Home />} socket={socket} />
                         <Route path={'/polls/:id'} element={<Poll socket={socket} />} />
+                        <Route path={"*"} element={<Home />} socket={socket} />
                     </Route>
                 </Routes>
             </BrowserRouter>
