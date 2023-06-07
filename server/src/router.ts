@@ -81,19 +81,42 @@ interface Option {
 }
 
 router.post("/polls", async (req, res) => {
-    const { title, options, duration } = req.body;
+    const { title, options, duration, expiresIn } = req.body;
     try {
-        const durationMs = millit(duration) as number;
-        if(isNaN(durationMs)) {
-            return res.status(400).json({ error: "Couldn't parse the given duration" });
+        if(req.body.duration) {
+            const durationMs = millit(duration) as number;
+            if(isNaN(durationMs)) {
+                return res.status(400).json({ error: "Couldn't parse the given duration" });
+            }
+            const expiresIn = new Date(Date.now() + durationMs);
+            const poll = await connection.poll.create({ 
+                data: { 
+                    title,
+                    durationMs: durationMs,
+                    expiresIn
+                } 
+            });
+            const optionsPromise = options.map(async (option: Option) => {
+                await connection.option.create({ 
+                    data: { 
+                        name: option.name,
+                        pollId: poll.id
+                    } 
+                });
+            });
+            await Promise.all(optionsPromise);
+            return res.json(poll);
         }
-        const expiresIn = new Date(Date.now() + durationMs);
-        const poll = await connection.poll.create({ 
-            data: { 
+                              // expiresIn is intended to be UTC
+        const date = new Date(expiresIn);
+        const now = new Date()
+        const durationMs = date.getTime() - now.getTime();
+        const poll = await connection.poll.create({
+            data: {
                 title,
-                durationMs: durationMs,
-                expiresIn
-            } 
+                expiresIn: date,
+                durationMs
+            }
         });
         const optionsPromise = options.map(async (option: Option) => {
             await connection.option.create({ 
@@ -104,8 +127,10 @@ router.post("/polls", async (req, res) => {
             });
         });
         await Promise.all(optionsPromise);
-        return res.json(poll);
-    } catch {
+        return res.json({});
+
+    } catch(err) {
+        console.error(err)
         return res.sendStatus(400);
     }
 });
