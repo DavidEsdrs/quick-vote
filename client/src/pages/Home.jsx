@@ -12,13 +12,16 @@ export function Home({ socket }) {
             .then(res => setPolls(res));
     }, [setPolls]);
 
+    const currentPolls = polls?.filter(poll => !poll.isFinished);
+    const finishedPolls = polls?.filter(poll => poll.isFinished);
+
     return (
-        <div className="p-4">
+        <div className="p-4 max-w-4xl mx-auto">
             <h2 className="text-2xl mb-4">
                 Current polls
             </h2>
             <ul className="flex flex-col gap-2 p-4 shadow-md rounded-md mb-8">
-                {polls?.filter(poll => !poll.isFinished)?.map(poll => (
+                {currentPolls.length > 0 ? currentPolls.map(poll => (
                     <div key={poll.id} className="relative p-2 border rounded border-gray-200 hover:cursor-pointer hover:bg-gray-100 transition" onClick={() => navigate(`/polls/${poll.id}`)}>
                         <h3 className="text-green-900 font-semibold">
                             {poll.title}
@@ -28,13 +31,13 @@ export function Home({ socket }) {
                         </span>
                         <TimeRemaining absolute poll={poll} />
                     </div>
-                ))}
+                )) : <h2> No polls active </h2>}
             </ul>
             <h2 className="text-2xl mb-4">
                 Finished polls
             </h2>
             <ul className="flex flex-col gap-2 p-4 shadow-md rounded-md">
-                {polls?.filter(poll => poll.isFinished)?.map(poll => (
+                {finishedPolls?.map(poll => (
                     <div key={poll.id} className="relative p-2 border rounded border-gray-200 hover:cursor-pointer hover:bg-gray-100 transition" onClick={() => navigate(`/polls/${poll.id}`)}>
                         <h3 className="text-green-900 font-semibold">
                             {poll.title}
