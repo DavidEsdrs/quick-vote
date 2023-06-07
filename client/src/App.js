@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import io from "socket.io-client";
 import { Home } from "./pages/Home";
 import { Layout } from "./components/Layout";
+import { CreatePoll } from "./pages/CreatePoll";
 
 function App() {
     const [socket, setSocket] = useState(null);
@@ -25,6 +26,7 @@ function App() {
                     <Route element={<Layout />}>
                         <Route path={"/"} element={<Home />} socket={socket} />
                         <Route path={'/polls/:id'} element={<Poll socket={socket} />} />
+                        <Route path={'/polls/create'} element={<CreatePoll />} />
                         <Route path={"*"} element={<Home />} socket={socket} />
                     </Route>
                 </Routes>
