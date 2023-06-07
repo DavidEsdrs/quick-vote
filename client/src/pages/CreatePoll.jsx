@@ -11,11 +11,17 @@ export function CreatePoll() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        const date = new Date(expiresIn.date);
+        const [hours, minutes] = expiresIn.hours.split(":").map(Number);
+        date.setHours(hours);
+        date.setMinutes(minutes);
+
         const body = {
             title,
             options,
             duration: !useExpiresIn ? fixDuration(duration) : undefined,
-            expiresIn: useExpiresIn ? expiresIn : undefined
+            expiresIn: useExpiresIn ? date : undefined
         };
         const headers = {"Content-type": "application/json; charset=UTF-8"}
         await fetch("http://localhost:4040/polls", {
@@ -73,11 +79,7 @@ export function CreatePoll() {
                                     className="border w-96 px-4 py-2 rounded-xl" 
                                     placeholder="Expires in" 
                                     type="date"
-                                    onChange={e => {
-                                        // TODO: is this really necessary? new Date(e.target.value) does the thing?
-                                        const fixedDate = new Date(e.target.value).toLocaleDateString(undefined, { day: "numeric", month: "numeric", year: "numeric" });
-                                        setExpiresIn(prev => ({ ...prev, date: fixedDate }))
-                                    }} 
+                                    onChange={e => setExpiresIn(prev => ({ ...prev, date: new Date(e.target.value) }))} 
                                 />
                             </label>
                             <label className="flex flex-col w-3/6">
