@@ -7,7 +7,7 @@ const Option = styled.div`
     :before {
         content: '';
         height: 100%;
-        width: ${({ votes = 1, totalVotes = 1 }) => `${(votes * 100) / totalVotes}%`};
+        width: ${({ $votes = 1, $totalVotes = 1 }) => `${($votes * 100) / $totalVotes}%`};
         position: absolute;
         left: 0;
         top: 0;
@@ -50,6 +50,8 @@ export function Poll({ socket }) {
         setVoted(true);
     }
 
+    const mostVotedOpt = poll.options.reduce((p, c) => c._count.votes > p._count.votes ? c : p);
+
     return (
         <div className="container p-4">
             <div className="flex flex-col gap-1 mb-4 justify-between md:flex-row md:items-center">
@@ -65,7 +67,7 @@ export function Poll({ socket }) {
             </div>
             <ul className="flex flex-col gap-2">
                 {poll.options.map((opt, i) => (
-                    <Option key={opt.id} className="relative flex items-center gap-2 p-2 border rounded font-semibold" votes={opt._count.votes} totalVotes={poll.totalVotes}>
+                    <Option key={opt.id} className="relative flex items-center gap-2 p-2 border rounded font-semibold" $votes={opt._count.votes} $totalVotes={mostVotedOpt._count.votes}>
                         <h2>{opt.name}</h2>
                         {(poll.isFinished || voted) && <p className="ml-auto">{opt._count.votes}</p>}
                         {(!poll.isFinished) && (
